@@ -1,23 +1,20 @@
 import sqlite3
 
-# Database file name
-DB_NAME = "street_lights.db"
+DB_NAME = "streetlight.db"
 
 
 def create_database():
     """
     Creates the SQLite database and the street_lights table if they do not exist.
-    This function ensures the database schema is set up correctly for the
-    smart street light energy waste detection system.
     """
     try:
-        # Connect to the database (creates it if it doesn't exist)
+        # Connect to the database
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
 
-        # Create the street_lights table with the specified columns
+        # Create the street_lights table
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS street_lights (
+            CREATE TABLE IF NOT EXISTS street_light (
                 light_id TEXT PRIMARY KEY,
                 area_name TEXT,
                 pole_number TEXT,
@@ -28,16 +25,60 @@ def create_database():
             )
         """)
 
-        # Commit the changes and close the connection
+        # Save changes
         conn.commit()
         conn.close()
 
-        print(f"Database '{DB_NAME}' and table 'street_lights' created successfully.")
+        print("Database and table created successfully.")
 
     except sqlite3.Error as e:
         print(f"Error creating database: {e}")
 
 
+def add_street_light(light_id, area_name, pole_number,
+                      latitude, longitude,
+                      installation_date, status):
+    """
+    Adds a new street light record to the database.
+    """
+
+    try:
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO street_light (
+                light_id,
+                area_name,
+                pole_number,
+                latitude,
+                longitude,
+                installation_date,
+                status
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            light_id,
+            area_name,
+            pole_number,
+            latitude,
+            longitude,
+            installation_date,
+            status
+        ))
+
+        conn.commit()
+        print("Street Light Registered Successfully.")
+
+    except sqlite3.IntegrityError:
+        print("Street Light ID already exists.")
+
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+
+    finally:
+        conn.close()
+
+
 if __name__ == "__main__":
-    # Call the function to create the database when the script is run directly
     create_database()

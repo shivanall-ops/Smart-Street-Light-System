@@ -1,3 +1,4 @@
+from database import add_street_light
 # Smart Street Light Energy Waste Detection System
 # Main program with menu-driven interface
 
@@ -28,7 +29,23 @@ def main():
             
             # Handle each menu option using if-elif-else statements
             if choice == 1:
-                print("Register Street Light feature selected.")
+                light_id = input("Enter Light ID: ")
+                area_name = input("Enter Area Name: ")
+                pole_number = input("Enter Pole Number: ")
+                latitude = float(input("Enter Latitude: "))
+                longitude = float(input("Enter Longitude: "))
+                installation_date = input("Enter Installation Date (YYYY-MM-DD): ")
+                status = input("Enter Status (ON/OFF): ")
+
+                add_street_light(
+                    light_id,
+                    area_name,
+                    pole_number,
+                    latitude,
+                    longitude,
+                    installation_date,
+                    status
+    )
             elif choice == 2:
                 print("View Street Light feature selected.")
             elif choice == 3:
