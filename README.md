@@ -1,4 +1,4 @@
-# Smart Street Light System
+# python beginner projects
 This repository contains python beginner projects:
 
 ## projects
