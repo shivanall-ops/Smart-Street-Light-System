@@ -147,6 +147,73 @@ def update_light_status(light_id, status):
         print(f"Database error: {e}")
 
     finally:
-        conn.close()        
+        conn.close()
+def detect_energy_wastage(light_id, expected_status):
+    try:
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT status FROM street_light WHERE light_id = ?",
+            (light_id,)
+        )
+
+        record = cursor.fetchone()
+
+        if record:
+            current_status = record[0]
+
+            if current_status == "ON" and expected_status == "OFF":
+                print("Energy Waste Detected.")
+            else:
+                print("No Energy Waste Detected.")
+        else:
+            print("Street Light ID not found.")
+
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+
+    finally:
+        conn.close()
+def generate_report():
+    try:
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM street_light")
+        records = cursor.fetchall()
+
+        if records:
+            print("\n===== STREET LIGHT REPORT =====")
+            print(f"Total Street Lights: {len(records)}")
+
+            on_count = 0
+            off_count = 0
+
+            for record in records:
+                if record[6] == "ON":
+                    on_count += 1
+                elif record[6] == "OFF":
+                    off_count += 1
+
+            print(f"Lights ON : {on_count}")
+            print(f"Lights OFF: {off_count}")
+
+            print("\n----- All Street Lights -----")
+            for record in records:
+                print(
+                    f"ID: {record[0]}, "
+                    f"Area: {record[1]}, "
+                    f"Pole: {record[2]}, "
+                    f"Status: {record[6]}"
+                )
+        else:
+            print("No street light records found.")
+
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+
+    finally:
+        conn.close()       
 if __name__ == "__main__":
     create_database()
