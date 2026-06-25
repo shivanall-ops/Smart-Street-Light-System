@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Street Light System - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🌟 Smart Street Light System</h1>
+                <p class="subtitle">Real-time Energy Monitoring Dashboard</p>
+            </div>
+            <button class="refresh-btn" onclick="refreshData()">
+                <span class="refresh-icon">↻</span> Refresh
+            </button>
+        </header>
+
+        <!-- Summary Cards -->
+        <section class="summary-cards">
+            <div class="card total">
+                <div class="card-icon">📊</div>
+                <div class="card-content">
+                    <h3>Total Lights</h3>
+                    <p class="card-value" id="total-lights">0</p>
+                </div>
+            </div>
+
+            <div class="card on">
+                <div class="card-icon">💡</div>
+                <div class="card-content">
+                    <h3>Lights ON</h3>
+                    <p class="card-value" id="lights-on">0</p>
+                </div>
+            </div>
+
+            <div class="card off">
+                <div class="card-icon">🌙</div>
+                <div class="card-content">
+                    <h3>Lights OFF</h3>
+                    <p class="card-value" id="lights-off">0</p>
+                </div>
+            </div>
+
+            <div class="card faulty">
+                <div class="card-icon">⚠️</div>
+                <div class="card-content">
+                    <h3>Faulty Lights</h3>
+                    <p class="card-value" id="faulty-lights">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alert Section -->
+        <section class="alert-section" id="alert-section">
+            <div class="alert-header">
+                <h2>⚡ Energy Waste Alerts</h2>
+                <span class="alert-count" id="alert-count">0</span>
+            </div>
+            <div class="alert-content" id="alert-content">
+                <p class="no-alerts">No energy waste alerts</p>
+            </div>
+        </section>
+
+        <!-- 🔴 NEW: FAULTY LIGHTS LIVE SECTION -->
+        <section class="faulty-section">
+            <div class="section-header">
+                <h2>⚠️ Faulty Lights Detected</h2>
+            </div>
+
+            <div id="faulty-container" style="padding: 10px;">
+                <p>No faulty lights found</p>
+            </div>
+        </section>
+
+        <!-- Ambient Light Monitoring -->
+        <section class="ambient-section">
+            <div class="section-header">
+                <h2>☀️ Ambient Light Monitoring</h2>
+                <button class="simulate-btn" onclick="simulateAmbient()">Simulate Readings</button>
+            </div>
+
+            <div class="ambient-display">
+                <div class="ambient-card">
+                    <h3>Average Ambient Light</h3>
+                    <p class="ambient-value" id="avg-ambient">0</p>
+                    <p class="ambient-unit">Lux</p>
+                </div>
+
+                <div class="ambient-status" id="ambient-status">
+                    <span class="status-indicator"></span>
+                    <span class="status-text">Checking...</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Street Light Table -->
+        <section class="table-section">
+            <div class="section-header">
+                <h2>🏘️ Street Light Details</h2>
+                <button class="add-light-btn" onclick="showAddLightModal()">+ Add Light</button>
+            </div>
+
+            <div class="table-container">
+                <table class="lights-table">
+                    <thead>
+                        <tr>
+                            <th>Light ID</th>
+                            <th>Area Name</th>
+                            <th>Pole Number</th>
+                            <th>Status</th>
+                            <th>Ambient Light</th>
+                            <th>Alert</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="lights-table-body">
+                        <tr>
+                            <td colspan="7" class="no-data">Loading data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- System Health -->
+        <section class="system-health">
+            <h2>🔧 System Health</h2>
+            <div class="health-info">
+                <div class="health-item">
+                    <span class="health-label">Database Status:</span>
+                    <span class="health-value" id="db-status">Checking...</span>
+                </div>
+
+                <div class="health-item">
+                    <span class="health-label">Last Updated:</span>
+                    <span class="health-value" id="last-updated">--</span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Add Light Modal -->
+    <div class="modal" id="add-light-modal">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h3>Add New Street Light</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+
+            <form class="modal-form" id="add-light-form">
+
+                <div class="form-group">
+                    <label for="light_id">Light ID:</label>
+                    <input type="text" id="light_id" name="light_id" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="area_name">Area Name:</label>
+                    <input type="text" id="area_name" name="area_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="pole_number">Pole Number:</label>
+                    <input type="text" id="pole_number" name="pole_number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="latitude">Latitude:</label>
+                    <input type="number" step="any" id="latitude" name="latitude" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="longitude">Longitude:</label>
+                    <input type="number" step="any" id="longitude" name="longitude" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="installation_date">Installation Date:</label>
+                    <input type="date" id="installation_date" name="installation_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Status:</label>
+                    <select id="status" name="status" required>
+                        <option value="ON">ON</option>
+                        <option value="OFF">OFF</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="ambient_light">Ambient Light (Lux):</label>
+                    <input type="number" id="ambient_light" name="ambient_light" value="0" min="0">
+                </div>
+
+                <button type="submit" class="submit-btn">Add Light</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <!-- 🔴 NEW SCRIPT: Faulty Lights Loader -->
+    <script>
+        async function loadFaultyLights() {
+            try {
+                const res = await fetch("/api/faulty-lights");
+                const data = await res.json();
+
+                const container = document.getElementById("faulty-container");
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = "<p>No faulty lights found</p>";
+                    return;
+                }
+
+                container.innerHTML = "";
+
+                data.forEach(light => {
+                    const div = document.createElement("div");
+                    div.style.padding = "8px";
+                    div.style.borderBottom = "1px solid #ccc";
+                    div.style.color = "red";
+
+                    div.innerHTML = `
+                        <b>Light ID:</b> ${light.light_id} <br>
+                        <b>Status:</b> ${light.status} <br>
+                        <b>Ambient:</b> ${light.ambient_light}
+                    `;
+
+                    container.appendChild(div);
+                });
+
+            } catch (err) {
+                console.log("Error loading faulty lights", err);
+            }
+        }
+
+        // Load on page start
+        window.onload = function () {
+            loadFaultyLights();
+        };
+    </script>
+
+</body>
+</html>
