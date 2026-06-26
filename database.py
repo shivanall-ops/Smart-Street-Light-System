@@ -1,6 +1,11 @@
 import sqlite3
+import os
 
-DB_NAME = "streetlight.db"
+# -----------------------------
+# FIX: Absolute database path
+# -----------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_NAME = os.path.join(BASE_DIR, "streetlight.db")
 
 
 def create_database():
